@@ -91,6 +91,7 @@ function TodoListItems({
 
 function Inspector({ selectedTodoId }: { selectedTodoId: string | null }) {
   const setTodos = useSetValue("todos");
+
   const selectedTodo = useValue(
     useCallback(
       (state) => state.todos.find((t) => t.id === selectedTodoId),
@@ -102,9 +103,20 @@ function Inspector({ selectedTodoId }: { selectedTodoId: string | null }) {
     setTodos((todos) => todos.filter((t) => t.id !== selectedTodoId));
   }, [selectedTodoId, setTodos]);
 
+  const setSelectedTodo = useCallback(
+    (todo: TodoItem) => {
+      setTodos((todos) => todos.map((t) => (t.id === todo.id ? todo : t)));
+    },
+    [setTodos]
+  );
+
   if (selectedTodo) {
     return (
-      <TodoItemInspector className="px-3 overflow-y-auto" value={selectedTodo}>
+      <TodoItemInspector
+        className="px-3 overflow-y-auto"
+        value={selectedTodo}
+        onChange={setSelectedTodo}
+      >
         <TodoItemSection title="Item">
           <TodoItemField path="text" />
           <TodoItemField path="completed" />
