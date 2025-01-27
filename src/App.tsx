@@ -15,6 +15,69 @@ import {
   type TodoItem,
 } from "./state";
 
+export default function App() {
+  return (
+    <Provider
+      offlineStorageKey="todo-mvc"
+      inspector={{ anchor: "bottom right" }}
+    >
+      <TodoList />
+    </Provider>
+  );
+}
+
+function TodoList() {
+  const noyaManager = useNoyaManager();
+  const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
+
+  const leftMenuItems: MenuItem<MenuType>[] = [
+    {
+      title: "Edit",
+      items: [
+        { title: "Undo", value: "undo", shortcut: "Mod-z", role: "undo" },
+        { title: "Redo", value: "redo", shortcut: "Mod-Shift-z", role: "redo" },
+      ],
+    },
+  ];
+
+  const handleMenuItem = useCallback(
+    (value: MenuType) => {
+      switch (value) {
+        case "undo":
+          if (noyaManager.multiplayerStateManager.canUndo()) {
+            noyaManager.multiplayerStateManager.undo();
+          }
+          break;
+        case "redo":
+          if (noyaManager.multiplayerStateManager.canRedo()) {
+            noyaManager.multiplayerStateManager.redo();
+          }
+          break;
+      }
+    },
+    [noyaManager.multiplayerStateManager]
+  );
+
+  return (
+    <Workspace
+      toolbarTitle="Todo List"
+      className="flex-1"
+      leftMenuItems={leftMenuItems}
+      onSelectMenuItem={handleMenuItem}
+      right={<Inspector selectedTodoId={selectedTodoId} />}
+    >
+      <div className="flex-1 overflow-auto flex justify-center">
+        <div className="w-full max-w-md p-8">
+          <TodoListItems
+            selectedTodoId={selectedTodoId}
+            onSelectTodo={setSelectedTodoId}
+          />
+        </div>
+      </div>
+    </Workspace>
+  );
+}
+
 function TodoListItems({
   selectedTodoId,
   onSelectTodo,
@@ -89,6 +152,41 @@ function TodoListItems({
   );
 }
 
+interface TodoItemProps {
+  todo: TodoItem;
+  onToggle: (id: string) => void;
+  isSelected: boolean;
+  onSelect: () => void;
+}
+
+function TodoItem({ todo, onToggle, isSelected, onSelect }: TodoItemProps) {
+  return (
+    <div
+      className={`flex items-center gap-2 px-2 py-1 border border-gray-300 rounded cursor-pointer ${
+        isSelected ? "bg-blue-50 border-blue-300" : ""
+      }`}
+      onClick={onSelect}
+    >
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={(e) => {
+          e.stopPropagation();
+          onToggle(todo.id);
+        }}
+        className="h-4 w-4"
+      />
+      <span
+        className={`flex-1 ${
+          todo.completed ? "line-through text-gray-500" : ""
+        }`}
+      >
+        {todo.text}
+      </span>
+    </div>
+  );
+}
+
 function Inspector({ selectedTodoId }: { selectedTodoId: string | null }) {
   const setTodos = useSetValue("todos");
 
@@ -137,105 +235,5 @@ function Inspector({ selectedTodoId }: { selectedTodoId: string | null }) {
     <div className="p-3 text-gray-500 text-sm">
       Select a todo item to view and edit its details
     </div>
-  );
-}
-
-function TodoList() {
-  const noyaManager = useNoyaManager();
-  const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
-
-  const leftMenuItems: MenuItem<MenuType>[] = [
-    {
-      title: "Edit",
-      items: [
-        { title: "Undo", value: "undo", shortcut: "Mod-z", role: "undo" },
-        { title: "Redo", value: "redo", shortcut: "Mod-Shift-z", role: "redo" },
-      ],
-    },
-  ];
-
-  const handleMenuItem = useCallback(
-    (value: MenuType) => {
-      switch (value) {
-        case "undo":
-          if (noyaManager.multiplayerStateManager.canUndo()) {
-            noyaManager.multiplayerStateManager.undo();
-          }
-          break;
-        case "redo":
-          if (noyaManager.multiplayerStateManager.canRedo()) {
-            noyaManager.multiplayerStateManager.redo();
-          }
-          break;
-      }
-    },
-    [noyaManager.multiplayerStateManager]
-  );
-
-  return (
-    <Workspace
-      toolbarTitle="Todo List"
-      className="flex-1"
-      leftMenuItems={leftMenuItems}
-      onSelectMenuItem={handleMenuItem}
-      right={<Inspector selectedTodoId={selectedTodoId} />}
-    >
-      <div className="flex-1 overflow-auto flex justify-center">
-        <div className="w-full max-w-md p-8">
-          <TodoListItems
-            selectedTodoId={selectedTodoId}
-            onSelectTodo={setSelectedTodoId}
-          />
-        </div>
-      </div>
-    </Workspace>
-  );
-}
-
-interface TodoItemProps {
-  todo: TodoItem;
-  onToggle: (id: string) => void;
-  isSelected: boolean;
-  onSelect: () => void;
-}
-
-function TodoItem({ todo, onToggle, isSelected, onSelect }: TodoItemProps) {
-  return (
-    <div
-      className={`flex items-center gap-2 px-2 py-1 border border-gray-300 rounded cursor-pointer ${
-        isSelected ? "bg-blue-50 border-blue-300" : ""
-      }`}
-      onClick={onSelect}
-    >
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={(e) => {
-          e.stopPropagation();
-          onToggle(todo.id);
-        }}
-        className="h-4 w-4"
-      />
-      <span
-        className={`flex-1 ${
-          todo.completed ? "line-through text-gray-500" : ""
-        }`}
-      >
-        {todo.text}
-      </span>
-    </div>
-  );
-}
-
-export default function App() {
-  return (
-    <Provider
-      offlineStorageKey="todo-mvc"
-      inspector={{
-        anchor: "bottom right",
-      }}
-    >
-      <TodoList />
-    </Provider>
   );
 }
