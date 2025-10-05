@@ -32,6 +32,8 @@ function TodoList() {
 
   const leftMenuItems: MenuItem<MenuType>[] = [
     {
+      id: "edit",
+      type: "submenu",
       title: "Edit",
       items: [
         { title: "Undo", value: "undo", shortcut: "Mod-z", role: "undo" },
