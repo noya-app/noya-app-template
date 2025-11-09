@@ -1,32 +1,22 @@
 import { uuid } from "@noya-app/noya-utils";
-import { Button, Divider, MenuItem, Workspace } from "@noya-app/react-sdk";
+import {
+  Button,
+  createInspector,
+  Divider,
+  MenuItem,
+  useNoyaManager,
+  useNoyaState,
+  Workspace,
+} from "@noya-app/react-sdk";
 import "@noya-app/react-sdk/index.css";
 import { useCallback, useRef, useState } from "react";
-import {
-  Provider,
-  TodoItemField,
-  TodoItemInspector,
-  TodoItemSection,
-  useNoyaManager,
-  useSetValue,
-  useValue,
-  useValueState,
-  type MenuType,
-  type TodoItem,
-} from "./state";
+import { MenuType, State, TodoItem, todoItemSchema } from "./noya";
+
+const TodoInspector = createInspector({
+  schema: todoItemSchema,
+});
 
 export default function App() {
-  return (
-    <Provider
-      offlineStorageKey="todo-mvc"
-      inspector={{ anchor: "bottom right" }}
-    >
-      <TodoList />
-    </Provider>
-  );
-}
-
-function TodoList() {
   const noyaManager = useNoyaManager();
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
 
@@ -87,7 +77,7 @@ function TodoListItems({
   selectedTodoId: string | null;
   onSelectTodo: (id: string | null) => void;
 }) {
-  const [todos, setTodos] = useValueState("todos");
+  const [todos, setTodos] = useNoyaState("todos");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addTodo = useCallback(() => {
@@ -141,7 +131,7 @@ function TodoListItems({
 
       <div className="flex flex-col gap-2">
         {todos.map((todo) => (
-          <TodoItem
+          <Todo
             key={todo.id}
             todo={todo}
             onToggle={toggleTodo}
@@ -161,7 +151,7 @@ interface TodoItemProps {
   onSelect: () => void;
 }
 
-function TodoItem({ todo, onToggle, isSelected, onSelect }: TodoItemProps) {
+function Todo({ todo, onToggle, isSelected, onSelect }: TodoItemProps) {
   return (
     <div
       className={`flex items-center gap-2 px-2 py-1 border border-gray-300 rounded cursor-pointer ${
@@ -190,11 +180,11 @@ function TodoItem({ todo, onToggle, isSelected, onSelect }: TodoItemProps) {
 }
 
 function Inspector({ selectedTodoId }: { selectedTodoId: string | null }) {
-  const setTodos = useSetValue("todos");
+  const [, setTodos] = useNoyaState("todos");
 
-  const selectedTodo = useValue(
+  const [selectedTodo] = useNoyaState(
     useCallback(
-      (state) => state.todos.find((t) => t.id === selectedTodoId),
+      (state: State) => state.todos.find((t) => t.id === selectedTodoId),
       [selectedTodoId]
     )
   );
@@ -212,24 +202,24 @@ function Inspector({ selectedTodoId }: { selectedTodoId: string | null }) {
 
   if (selectedTodo) {
     return (
-      <TodoItemInspector
+      <TodoInspector.Inspector
         className="px-3 overflow-y-auto"
         value={selectedTodo}
         onChange={setSelectedTodo}
       >
-        <TodoItemSection title="Item">
-          <TodoItemField path="text" />
-          <TodoItemField path="completed" />
-        </TodoItemSection>
+        <TodoInspector.Section title="Item">
+          <TodoInspector.Field path="text" />
+          <TodoInspector.Field path="completed" />
+        </TodoInspector.Section>
         <Divider overflow={12} />
-        <TodoItemSection title="Metadata">
-          <TodoItemField path="createdAt" />
-        </TodoItemSection>
+        <TodoInspector.Section title="Metadata">
+          <TodoInspector.Field path="createdAt" />
+        </TodoInspector.Section>
         <Divider overflow={12} />
-        <TodoItemSection title="Actions">
+        <TodoInspector.Section title="Actions">
           <Button onClick={deleteTodo}>Delete</Button>
-        </TodoItemSection>
-      </TodoItemInspector>
+        </TodoInspector.Section>
+      </TodoInspector.Inspector>
     );
   }
 
