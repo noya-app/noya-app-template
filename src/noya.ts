@@ -1,7 +1,7 @@
 import { initializeNoya, Static, Type } from "@noya-app/react-sdk";
 
 export const todoItemSchema = Type.Object({
-  id: Type.String({ format: "uuid" }),
+  id: Type.String(),
   text: Type.String(),
   completed: Type.Boolean({ default: false }),
   createdAt: Type.Number(),
