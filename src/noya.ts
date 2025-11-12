@@ -22,6 +22,6 @@ initializeNoya({
     todos: [],
   },
   schema: stateSchema,
-  inspector: true,
+  inspector: false,
   offlineStorageKey: "todolist",
 });

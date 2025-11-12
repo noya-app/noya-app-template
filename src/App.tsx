@@ -1,7 +1,7 @@
 import { Workspace } from "@noya-app/react-sdk";
 import "@noya-app/react-sdk/index.css";
 import { useState } from "react";
-import { Inspector } from "./components/Inspector";
+import { TodoInspector } from "./components/TodoInspector";
 import { TodoList } from "./components/TodoList";
 import { useMenu } from "./hooks/useMenu";
 
@@ -14,7 +14,7 @@ export default function App() {
     <Workspace
       toolbarTitle="Todo List"
       className="flex-1"
-      right={<Inspector selectedTodoId={selectedTodoId} />}
+      right={<TodoInspector selectedTodoId={selectedTodoId} />}
     >
       <div className="flex-1 overflow-auto flex justify-center">
         <div className="w-full max-w-md p-8">
