@@ -11,12 +11,12 @@
     "deploy": "noya deploy --app"
   },
   "dependencies": {
-    "@noya-app/react-sdk": "^0.1.28",
+    "@noya-app/react-sdk": "0.1.29",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@noya-app/cli": "*",
+    "@noya-app/cli": "0.0.2",
     "@eslint/js": "^9.37.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/react": "^19.2.0",
